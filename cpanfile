@@ -9,4 +9,5 @@ requires "Time::Duration";
 requires 'Proclet';
 requires 'File::RotateLogs';
 requires 'Daemon::Control';
+requires 'File::pushd';
 requires 'Amon2::Plugin::Web::Text', 0, git => 'https://github.com/shoichikaji/Amon2-Plugin-Web-Text.git';

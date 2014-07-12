@@ -12,7 +12,7 @@ get '/' => sub {
     my $format = $c->req->query_parameters->{format} || "";
     my @files;
     {
-        my $gurard = pushd $c->config->{root};
+        my $guard = pushd $c->config->{root};
         for my $file (sort grep -f, glob "*") {
             my @stat = stat $file;
             my $size  = $stat[7];
