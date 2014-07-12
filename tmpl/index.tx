@@ -1,0 +1,33 @@
+: cascade "layout.tx"
+
+: override content -> {
+
+<h3>How to upload files</h3>
+<pre>&gt; curl -T filename <: abs_uri_for('/upload/filename') :></pre>
+
+<h3>How to download files</h3>
+<pre>&gt; curl -O <:abs_uri_for('/download/filename') :>
+&gt; wget <:abs_uri_for('/download/filename') :></pre>
+
+<h3>Available files</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>name</th>
+            <th>size</th>
+            <th>mtime</th>
+        </tr>
+    </thead>
+    <tbody>
+        : for $files -> $file {
+        <tr>
+            <td> <: $file.name :> </td>
+            <td> <: $file.size :>B (<: format_bytes($file.size) :>B) </td>
+            <td> <: format_date($file.mtime) :> (<: ago($file.mtime) :>) </td>
+        </tr>
+        : }
+    </tbody>
+</table>
+
+: }

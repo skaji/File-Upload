@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use FindBin '$Bin';
+use POSIX qw(strftime);
+my $mode = $ENV{PLACK_ENV} || "development";
+my $config = do "$Bin/../config/$mode.pl" or die "config missing";
+my $root   = $config->{root} or die "root missing";
+my $maxage = $config->{root_maxage} or die "root_maxage missing";
+
+my $now = time;
+my $num = 0;
+for my $file (grep -f, glob "$root/*") {
+    my $mtime = (stat $file)[9];
+    if ($now - $mtime > $maxage) {
+        warn sprintf "unlink %s, mtime=%s\n", $file, strftime("%F %T", localtime($mtime));
+        unlink $file
+            or warn "unlink $file failed: $!\n";
+        $num++;
+    }
+}
+warn "unlinked $num files";

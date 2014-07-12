@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use FindBin '$Bin';
+BEGIN { $ENV{PERL5LIB} = "$Bin/local/lib/perl5" }
+use Daemon::Control;
+
+my $user = "skaji";
+my $group; #= "staff";
+
+my $running_user = getpwuid $<;
+unless (grep { $_ eq $running_user } ($user, "root")) {
+    die "Must run as $user or root\n";
+}
+
+my $name = "file-upload";
+exit Daemon::Control->new(
+    name         => $name,
+    path         => "$Bin/init",
+    program      => $^X,
+    user         => $user,
+    ( $group ? (group => $group) : ()),
+    directory    => "/",
+    scan_name    => qr/$^X/,
+    program_args => ["$Bin/script/file-upload-proclet"],
+    pid_file     => "$Bin/log/.$name.pid",
+    stderr_file  => "$Bin/log/$name.err",
+    stdout_file  => "$Bin/log/$name.out",
+    fork => 2,
+)->run;

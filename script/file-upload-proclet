@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use utf8;
+use Proclet;
+use FindBin '$Bin';
+use File::RotateLogs;
+my $mode = $ENV{PLACK_ENV} || "development";
+my $config = do "$Bin/../config/$mode.pl" or die "config read failed";
+my $maxage = $config->{log_maxage} or die "log_maxage missing";
+
+my $logger = File::RotateLogs->new(
+    logfile      => "$Bin/../log/file-upload.log.%Y%m%d",
+    rotationtime => 60 * 60 * 24,
+    maxage       => $maxage,
+);
+
+my $p = Proclet->new(enable_log_worker => 1, logger => sub { $logger->print(@_) });
+
+$p->service(tag => "server",   code => [$^X, "$Bin/file-upload-server"]);
+$p->service(tag => "unlinker", code => [$^X, "$Bin/file-upload-unlinker"], every => '7 * * * *');
+
+$p->run;
