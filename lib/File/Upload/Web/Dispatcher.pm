@@ -84,21 +84,7 @@ get '/download/:filename' => sub {
     my $abs_filename = $c->config->{root} . "/$filename";
     -f $abs_filename
         or return $c->render_text( 404 => "404 '$filename' is not found\n" );
-    open my $fh, "<", $abs_filename or do {
-        warn "open '$abs_filename': $!";
-        return $c->render_text( 500 => "500 Internal Server Error\n" );
-    };
-    my $length = -s $abs_filename or do {
-        warn "-s '$abs_filename': $!";
-        return $c->render_text( 500 => "500 Internal Server Error\n" );
-    };
-
-    my $res = $c->create_response(200);
-    $res->body($fh);
-    $res->content_type('application/octet-stream');
-    $res->content_length( $length );
-    $res->header( 'Content-Disposition' => qq[attachment; filename="$filename"] );
-    return $res;
+    return $c->send_file( path => $abs_filename );
 };
 
 

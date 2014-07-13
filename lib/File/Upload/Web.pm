@@ -14,6 +14,7 @@ sub dispatch {
 __PACKAGE__->load_plugins(
     'Web::JSON',
     'Web::Text',
+    'Web::SendFile',
 );
 
 {
